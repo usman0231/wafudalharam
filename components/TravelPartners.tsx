@@ -63,11 +63,11 @@ export default function TravelPartners() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="">
+    <section ref={sectionRef} className="overflow-hidden">
       {/* Background Decoration */}
-      <div className="h-[50vh] relative">
-        <div ref={planeRef} className="absolute bottom-[-24rem] left-1/2 transform -translate-x-1/2">
-          <Image src="/finalPlane.png" alt="plane image" height={760} width={760} />
+      <div className="h-[25vh] sm:h-[35vh] md:h-[45vh] lg:h-[50vh] relative overflow-hidden">
+        <div ref={planeRef} className="absolute bottom-[-8rem] sm:bottom-[-14rem] md:bottom-[-18rem] lg:bottom-[-24rem] left-1/2 transform -translate-x-1/2">
+          <Image src="/finalPlane.png" alt="plane image" height={760} width={760} className="w-[280px] sm:w-[450px] md:w-[580px] lg:w-[700px] xl:w-[760px] h-auto" />
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export default function TravelPartners() {
 
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
           <div ref={titleRef}>
-            <h2 className="text-5xl font-bold text-center text-gray-900 mb-4 pt-60">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4 pt-20 sm:pt-32 md:pt-44 lg:pt-60">
               Our Travel <span className="text-gradient">Partner</span>
             </h2>
             <p className="text-center text-gray-600 mb-16 max-w-3xl mx-auto text-lg">

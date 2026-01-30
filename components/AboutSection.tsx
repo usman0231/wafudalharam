@@ -80,7 +80,7 @@ export default function AboutSection() {
             </div>
 
             {/* Floating Badge */}
-            <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-xl p-4 float">
+            <div className="absolute -bottom-6 right-2 sm:-right-6 bg-white rounded-2xl shadow-xl p-4 float">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#b8956a] to-[#0d6e6e] rounded-xl flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">

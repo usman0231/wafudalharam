@@ -138,7 +138,7 @@ export default function WhyChooseUs() {
               </div>
 
               {/* Floating Stats */}
-              <div className="absolute -right-6 top-1/4 bg-white rounded-2xl shadow-xl p-4 float hidden md:block">
+              <div className="absolute right-2 md:-right-6 top-1/4 bg-white rounded-2xl shadow-xl p-4 float hidden md:block">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-gradient">10+</p>
                   <p className="text-xs text-gray-500">Years Experience</p>
@@ -149,7 +149,7 @@ export default function WhyChooseUs() {
 
           {/* Right - Content */}
           <div className="md:min-h-[800px]">
-            <div ref={contentRef}>
+            <div ref={contentRef} className="bg-white/50 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none backdrop-blur-sm md:backdrop-blur-none mb-6 md:mb-0">
               <span className="inline-block px-4 py-2 bg-gradient-to-r from-[#b8956a]/10 to-[#0d6e6e]/10 rounded-full text-[#b8956a] font-semibold text-sm mb-4">
                 Why Choose Us
               </span>
