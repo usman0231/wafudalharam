@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -10,6 +10,33 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubscribing(true);
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setSubscribed(true);
+        setEmail("");
+        setTimeout(() => setSubscribed(false), 5000);
+      }
+    } catch {
+      alert("Failed to subscribe. Please try again.");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   useEffect(() => {
     if (footerRef.current) {
@@ -99,14 +126,20 @@ export default function Footer() {
           <div className="footer-col">
             <h4 className="text-white font-bold mb-6 text-lg">Navigation</h4>
             <ul className="space-y-3">
-              {['Home', 'Departure Schedule', 'Our Product', 'About Us', 'Gallery', 'Contact Us'].map((item, idx) => (
+              {[
+                { name: 'Home', href: '/' },
+                { name: 'About Us', href: '/about' },
+                { name: 'Packages', href: '/packages' },
+                { name: 'Gallery', href: '/gallery' },
+                { name: 'Contact Us', href: '/contact-us' }
+              ].map((item, idx) => (
                 <li key={idx}>
                   <Link
-                    href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/ /g, '-')}`}
+                    href={item.href}
                     className="text-gray-400 text-sm hover:text-[#b8956a] transition-colors flex items-center gap-2 group"
                   >
                     <span className="w-0 h-0.5 bg-[#b8956a] group-hover:w-3 transition-all duration-300"></span>
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -117,14 +150,19 @@ export default function Footer() {
           <div className="footer-col">
             <h4 className="text-white font-bold mb-6 text-lg">Packages</h4>
             <ul className="space-y-3">
-              {['Umroh Package', 'Hajj Package', 'Hajj Plus Package'].map((item, idx) => (
+              {[
+                { name: 'Umrah Regular', href: '/packages' },
+                { name: 'Umrah Plus', href: '/packages' },
+                { name: 'Umrah VIP', href: '/packages' },
+                { name: 'Hajj Packages', href: '/packages' }
+              ].map((item, idx) => (
                 <li key={idx}>
                   <Link
-                    href={`/${item.toLowerCase().replace(/ /g, '-')}`}
+                    href={item.href}
                     className="text-gray-400 text-sm hover:text-[#b8956a] transition-colors flex items-center gap-2 group"
                   >
                     <span className="w-0 h-0.5 bg-[#b8956a] group-hover:w-3 transition-all duration-300"></span>
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -135,14 +173,19 @@ export default function Footer() {
           <div className="footer-col">
             <h4 className="text-white font-bold mb-6 text-lg">Support</h4>
             <ul className="space-y-3">
-              {['About Us', 'FAQ', 'Career', 'Article'].map((item, idx) => (
+              {[
+                { name: 'FAQ', href: '/faq' },
+                { name: 'Privacy Policy', href: '/privacy-policy' },
+                { name: 'Terms & Conditions', href: '/terms-conditions' },
+                { name: 'Contact Support', href: '/contact-us' }
+              ].map((item, idx) => (
                 <li key={idx}>
                   <Link
-                    href={`/${item.toLowerCase().replace(/ /g, '-')}`}
+                    href={item.href}
                     className="text-gray-400 text-sm hover:text-[#b8956a] transition-colors flex items-center gap-2 group"
                   >
                     <span className="w-0 h-0.5 bg-[#b8956a] group-hover:w-3 transition-all duration-300"></span>
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -157,19 +200,44 @@ export default function Footer() {
               <h4 className="text-white font-bold text-xl mb-2">Subscribe to Our Newsletter</h4>
               <p className="text-gray-400 text-sm">Get the latest updates on packages, promotions, and spiritual journey tips.</p>
             </div>
-            <div className="flex w-full md:w-auto gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 md:w-72 px-5 py-3 bg-white/10 border border-white/20 rounded-full text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#b8956a] transition-colors"
-              />
-              <button className="px-6 py-3 bg-gradient-to-r from-[#b8956a] to-[#a07d5a] text-white font-semibold text-sm rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2">
-                Subscribe
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            {subscribed ? (
+              <div className="flex items-center gap-3 bg-green-500/20 border border-green-500/30 px-6 py-3 rounded-full">
+                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-              </button>
-            </div>
+                <span className="text-green-400 font-medium text-sm">Subscribed successfully!</span>
+              </div>
+            ) : (
+              <form onSubmit={handleNewsletterSubmit} className="flex w-full md:w-auto gap-3">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="flex-1 md:w-72 px-5 py-3 bg-white/10 border border-white/20 rounded-full text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#b8956a] transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubscribing}
+                  className="px-6 py-3 bg-gradient-to-r from-[#b8956a] to-[#a07d5a] text-white font-semibold text-sm rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2 disabled:opacity-70"
+                >
+                  {isSubscribing ? (
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                  ) : (
+                    <>
+                      Subscribe
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
@@ -177,11 +245,12 @@ export default function Footer() {
         <div className="border-t border-white/10 mt-10 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              © 2024 Wafud Al Haram. All rights reserved.
+              © 2025 Wafud Al Haram. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <Link href="/privacy" className="text-gray-500 text-sm hover:text-[#b8956a] transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="text-gray-500 text-sm hover:text-[#b8956a] transition-colors">Terms of Service</Link>
+              <Link href="/privacy-policy" className="text-gray-500 text-sm hover:text-[#b8956a] transition-colors">Privacy Policy</Link>
+              <Link href="/terms-conditions" className="text-gray-500 text-sm hover:text-[#b8956a] transition-colors">Terms & Conditions</Link>
+              <Link href="/faq" className="text-gray-500 text-sm hover:text-[#b8956a] transition-colors">FAQ</Link>
             </div>
           </div>
         </div>

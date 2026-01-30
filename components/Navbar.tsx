@@ -36,10 +36,10 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          {["Home", "Departure Schedule", "Our Product", "Gallery", "Contact Us"].map((item, index) => (
+          {["Home", "About Us", "Packages", "Gallery", "Contact Us"].map((item, index) => (
             <Link
               key={index}
-              href={item === "Home" ? "/" : `/${item.toLowerCase().replace(/ /g, "-")}`}
+              href={item === "Home" ? "/" : item === "About Us" ? "/about" : `/${item.toLowerCase().replace(/ /g, "-")}`}
               className={`font-medium transition-all duration-300 relative group ${
                 scrolled ? "text-gray-800 hover:text-[#b8956a]" : "text-white hover:text-[#b8956a]"
               }`}
@@ -75,10 +75,10 @@ export default function Navbar() {
         mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
       }`}>
         <div className="container mx-auto px-6 py-4 space-y-4">
-          {["Home", "Departure Schedule", "Our Product", "Gallery", "Contact Us"].map((item, index) => (
+          {["Home", "About Us", "Packages", "Gallery", "Contact Us"].map((item, index) => (
             <Link
               key={index}
-              href={item === "Home" ? "/" : `/${item.toLowerCase().replace(/ /g, "-")}`}
+              href={item === "Home" ? "/" : item === "About Us" ? "/about" : `/${item.toLowerCase().replace(/ /g, "-")}`}
               className="block text-gray-800 hover:text-[#b8956a] font-medium transition-colors"
               onClick={() => setMobileOpen(false)}
             >

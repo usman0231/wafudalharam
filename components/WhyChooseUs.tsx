@@ -49,8 +49,21 @@ const features = [
 export default function WhyChooseUs() {
   const contentRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Pin the image while scrolling through the section
+    if (imageRef.current && sectionRef.current) {
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        pin: imageRef.current,
+        pinSpacing: false,
+      });
+    }
+
     if (contentRef.current) {
       gsap.fromTo(
         contentRef.current,
@@ -85,10 +98,14 @@ export default function WhyChooseUs() {
         }
       );
     }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
   }, []);
 
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-gray-50 relative">
+    <section ref={sectionRef} className="py-24 bg-gradient-to-b from-white to-gray-50 relative">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-20 right-20 w-64 h-64 bg-[#b8956a]/5 rounded-full blur-3xl"></div>
@@ -97,9 +114,9 @@ export default function WhyChooseUs() {
 
       <div className="container mx-auto px-6 max-w-7xl relative z-10">
         <div className="grid md:grid-cols-2 gap-16 items-start">
-          {/* Left - Sticky Image */}
+          {/* Left - Pinned Image */}
           <div className="relative md:h-auto">
-            <div className="md:sticky md:top-24">
+            <div ref={imageRef} className="md:pt-24">
               <div className="relative h-[500px] md:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
                 <Image
                   src="/IMG_8873.JPG.jpeg"

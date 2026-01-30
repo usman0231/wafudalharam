@@ -66,8 +66,8 @@ export default function TravelPartners() {
     <section ref={sectionRef} className="">
       {/* Background Decoration */}
       <div className="h-[50vh] relative">
-        <div ref={planeRef} className="absolute bottom-[-11rem] left-1/2 transform -translate-x-1/2">
-          <Image src="/plane.png" alt="plane image" height={700} width={700} />
+        <div ref={planeRef} className="absolute bottom-[-24rem] left-1/2 transform -translate-x-1/2">
+          <Image src="/finalPlane.png" alt="plane image" height={760} width={760} />
         </div>
       </div>
 
@@ -91,12 +91,11 @@ export default function TravelPartners() {
                 key={index}
                 className="card-hover bg-white rounded-2xl p-6 flex items-center justify-center border border-gray-100 shadow-sm min-h-[140px] group"
               >
-                <div className="relative w-full h-20 transform group-hover:scale-110 transition-transform duration-300">
+                <div className="relative w-full h-20 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
                   <Image
                     src={partner.logo}
                     alt={partner.name}
-                    width={120} // Fixed size to optimize loading
-                    height={80} // Fixed size to optimize loading
+                    fill
                     className="object-contain"
                   />
                 </div>

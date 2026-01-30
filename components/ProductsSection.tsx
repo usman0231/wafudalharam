@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import PackageInquiryModal from "./PackageInquiryModal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -73,6 +73,23 @@ const packages = [
 export default function ProductsSection() {
   const titleRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<{
+    id: number;
+    name: string;
+    price: string;
+    days: string;
+  } | null>(null);
+
+  const handleChoosePackage = (pkg: typeof packages[0]) => {
+    setSelectedPackage({
+      id: pkg.id,
+      name: pkg.name,
+      price: pkg.price,
+      days: pkg.days,
+    });
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     if (titleRef.current) {
@@ -237,20 +254,27 @@ export default function ProductsSection() {
 
                 {/* Choose Package Button */}
                 <div className="p-6 pt-4">
-                  <Link
-                    href={`/package/${pkg.id}`}
+                  <button
+                    onClick={() => handleChoosePackage(pkg)}
                     className="btn-shine w-full bg-gradient-to-r from-[#b8956a] to-[#a07d5a] text-white py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
                   >
                     Choose Package
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
-                  </Link>
+                  </button>
                 </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Package Inquiry Modal */}
+      <PackageInquiryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedPackage={selectedPackage}
+      />
     </section>
   );
 }

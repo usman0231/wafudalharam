@@ -1,25 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 export default function HeroSection() {
   const buttonsRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const [hasSnapped, setHasSnapped] = useState(false);
 
   useEffect(() => {
+    // Auto-scroll snap when user scrolls a little
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const threshold = 15; // Scroll 50px to trigger snap
+      const targetScroll = window.innerHeight + 600; // Scroll to cut off plane image
+
+      if (scrollY > threshold && scrollY < targetScroll && !hasSnapped) {
+        setHasSnapped(true);
+        gsap.to(window, {
+          duration: 2,
+          scrollTo: { y: targetScroll, autoKill: false },
+          ease: "power2.out"
+        });
+      }
+
+      // Reset snap state when user scrolls back to top
+      if (scrollY < 10) {
+        setHasSnapped(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
     // Scroll-triggered opacity fade for the entire section
     if (sectionRef.current) {
       gsap.to(sectionRef.current, {
         opacity: 0,
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 80%", // Start fading when the section's top reaches the bottom of the viewport
+          start: "top -50%",   // Start fading after 50% of the page is scrolled
           end: "bottom top",   // End fading when the section's bottom reaches the top of the viewport
           scrub: 1,            // Smooth animation over scroll
           markers: false,      // Set to true for debugging purposes
@@ -79,7 +104,11 @@ export default function HeroSection() {
         );
       }
     });
-  }, []);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [hasSnapped]);
 
   return (
     <section ref={sectionRef} className="relative h-screen flex items-center justify-center overflow-hidden sticky top-0">
