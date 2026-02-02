@@ -14,13 +14,18 @@ export default function Home() {
     <div className="min-h-screen overflow-x-hidden">
       <Navbar />
       <HeroSection />
-      <TravelPartners />
-      <AboutSection />
-      <ProductsSection />
-      <WhyChooseUs />
-      <Testimonials />
-      <Documentation />
-      <Footer />
+      {/* Spacer for fixed hero section */}
+      <div className="h-screen" />
+      {/* Main content with higher z-index to overlay fixed hero */}
+      <div className="relative z-10">
+        <TravelPartners />
+        <AboutSection />
+        <ProductsSection />
+        <WhyChooseUs />
+        <Testimonials />
+        <Documentation />
+        <Footer />
+      </div>
       <BackToTop />
     </div>
   );

@@ -52,56 +52,65 @@ export default function WhyChooseUs() {
   const sectionRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
+  // GSAP animations - runs once on mount
   useEffect(() => {
-    // Pin the image while scrolling through the section
-    if (imageRef.current && sectionRef.current) {
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        pin: imageRef.current,
-        pinSpacing: false,
-      });
-    }
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
 
-    if (contentRef.current) {
-      gsap.fromTo(
-        contentRef.current,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: contentRef.current,
-            start: "top 75%",
+      // Pin effect on desktop
+      if (imageRef.current && sectionRef.current) {
+        ScrollTrigger.matchMedia({
+          "(min-width: 768px)": function() {
+            ScrollTrigger.create({
+              trigger: sectionRef.current,
+              start: "top top",
+              end: "bottom bottom",
+              pin: imageRef.current,
+              pinSpacing: false,
+            });
           }
-        }
-      );
-    }
+        });
+      }
 
-    if (featuresRef.current) {
-      gsap.fromTo(
-        featuresRef.current.children,
-        { opacity: 0, x: 50 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.6,
-          stagger: 0.15,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: featuresRef.current,
-            start: "top 75%",
+      if (contentRef.current) {
+        gsap.fromTo(
+          contentRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: contentRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
           }
-        }
-      );
-    }
+        );
+      }
 
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
+      if (featuresRef.current) {
+        gsap.fromTo(
+          featuresRef.current.children,
+          { opacity: 0, x: 50 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.6,
+            stagger: 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: featuresRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
+          }
+        );
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

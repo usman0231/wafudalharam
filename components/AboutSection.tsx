@@ -12,42 +12,51 @@ export default function AboutSection() {
   const imageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // GSAP animations - runs once on mount
   useEffect(() => {
-    if (imageRef.current) {
-      gsap.fromTo(
-        imageRef.current,
-        { opacity: 0, x: -100, rotateY: -15 },
-        {
-          opacity: 1,
-          x: 0,
-          rotateY: 0,
-          duration: 1.2,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: imageRef.current,
-            start: "top 75%",
-          }
-        }
-      );
-    }
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
 
-    if (contentRef.current) {
-      gsap.fromTo(
-        contentRef.current.children,
-        { opacity: 0, x: 50 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: contentRef.current,
-            start: "top 75%",
+      if (imageRef.current) {
+        gsap.fromTo(
+          imageRef.current,
+          { opacity: 0, x: -100, rotateY: -15 },
+          {
+            opacity: 1,
+            x: 0,
+            rotateY: 0,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: imageRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
           }
-        }
-      );
-    }
+        );
+      }
+
+      if (contentRef.current) {
+        gsap.fromTo(
+          contentRef.current.children,
+          { opacity: 0, x: 50 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            stagger: 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: contentRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
+          }
+        );
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

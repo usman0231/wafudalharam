@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -23,49 +23,73 @@ export default function TravelPartners() {
   const titleRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const planeRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    if (titleRef.current) {
-      gsap.fromTo(
-        titleRef.current,
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: "top 80%",
-          }
-        }
-      );
-    }
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
 
-    if (cardsRef.current) {
-      gsap.fromTo(
-        cardsRef.current.children,
-        { opacity: 0, y: 60, scale: 0.9 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "back.out(1.2)",
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: "top 75%",
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // GSAP animations - runs once on mount
+  useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+
+      if (titleRef.current) {
+        gsap.fromTo(
+          titleRef.current,
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: titleRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
           }
-        }
-      );
-    }
+        );
+      }
+
+      if (cardsRef.current) {
+        gsap.fromTo(
+          cardsRef.current.children,
+          { opacity: 0, y: 60, scale: 0.9 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "back.out(1.2)",
+            scrollTrigger: {
+              trigger: cardsRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
+          }
+        );
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
   }, []);
 
   return (
     <section ref={sectionRef} className="overflow-hidden">
-      {/* Background Decoration */}
-      <div className="h-[25vh] sm:h-[35vh] md:h-[45vh] lg:h-[50vh] relative overflow-hidden">
+      {/* Background Decoration with Plane - Hidden only on mobile */}
+      <div className={`${isMobile ? 'hidden' : 'block'} h-[25vh] sm:h-[35vh] md:h-[45vh] lg:h-[50vh] relative overflow-hidden`}>
         <div ref={planeRef} className="absolute bottom-[-8rem] sm:bottom-[-14rem] md:bottom-[-18rem] lg:bottom-[-24rem] left-1/2 transform -translate-x-1/2">
           <Image src="/finalPlane.png" alt="plane image" height={760} width={760} className="w-[280px] sm:w-[450px] md:w-[580px] lg:w-[700px] xl:w-[760px] h-auto" />
         </div>
@@ -76,8 +100,8 @@ export default function TravelPartners() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#0d6e6e]/5 rounded-full blur-3xl"></div>
 
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
-          <div ref={titleRef}>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4 pt-20 sm:pt-32 md:pt-44 lg:pt-60">
+          <div ref={titleRef} id="travel-partners-title">
+            <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4 ${isMobile ? 'pt-8' : 'pt-20 sm:pt-32 md:pt-44 lg:pt-60'}`}>
               Our Travel <span className="text-gradient">Partner</span>
             </h2>
             <p className="text-center text-gray-600 mb-16 max-w-3xl mx-auto text-lg">

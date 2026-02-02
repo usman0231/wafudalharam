@@ -77,43 +77,52 @@ export default function Testimonials() {
   const titleRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
+  // GSAP animations - runs once on mount
   useEffect(() => {
-    if (titleRef.current) {
-      gsap.fromTo(
-        titleRef.current,
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: "top 80%",
-          }
-        }
-      );
-    }
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
 
-    if (cardsRef.current) {
-      const cards = cardsRef.current.querySelectorAll('.testimonial-card');
-      gsap.fromTo(
-        cards,
-        { opacity: 0, y: 60, scale: 0.95 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: "top 75%",
+      if (titleRef.current) {
+        gsap.fromTo(
+          titleRef.current,
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: titleRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
           }
-        }
-      );
-    }
+        );
+      }
+
+      if (cardsRef.current) {
+        const cards = cardsRef.current.querySelectorAll('.testimonial-card');
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 60, scale: 0.95 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: cardsRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
+          }
+        );
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

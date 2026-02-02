@@ -91,42 +91,51 @@ export default function ProductsSection() {
     setIsModalOpen(true);
   };
 
+  // GSAP animations - runs once on mount
   useEffect(() => {
-    if (titleRef.current) {
-      gsap.fromTo(
-        titleRef.current,
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: "top 80%",
-          }
-        }
-      );
-    }
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
 
-    if (cardsRef.current) {
-      gsap.fromTo(
-        cardsRef.current.children,
-        { opacity: 0, y: 80, rotateY: -10 },
-        {
-          opacity: 1,
-          y: 0,
-          rotateY: 0,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: "top 75%",
+      if (titleRef.current) {
+        gsap.fromTo(
+          titleRef.current,
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: titleRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
           }
-        }
-      );
-    }
+        );
+      }
+
+      if (cardsRef.current) {
+        gsap.fromTo(
+          cardsRef.current.children,
+          { opacity: 0, y: 80, rotateY: -10 },
+          {
+            opacity: 1,
+            y: 0,
+            rotateY: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: cardsRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            }
+          }
+        );
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -13,13 +13,18 @@ export default function HeroSection() {
   const statsRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasSnapped, setHasSnapped] = useState(false);
+  const hasSnappedRef = useRef(false);
   const [videoSrc, setVideoSrc] = useState("/final2.mp4");
+  const [videoError, setVideoError] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  // Handle responsive video source
+  // Handle responsive video source and screen size
   useEffect(() => {
     const updateVideoSource = () => {
       const width = window.innerWidth;
+      const desktop = width >= 1024; // lg breakpoint
+      setIsDesktop(desktop);
+
       let newSrc = "/final2.mp4"; // desktop default
 
       if (width < 640) {
@@ -28,125 +33,167 @@ export default function HeroSection() {
         newSrc = "/final2_tab.mp4";
       }
 
-      if (newSrc !== videoSrc) {
-        setVideoSrc(newSrc);
-      }
+      setVideoSrc(newSrc);
     };
 
     updateVideoSource();
     window.addEventListener("resize", updateVideoSource);
     return () => window.removeEventListener("resize", updateVideoSource);
-  }, [videoSrc]);
+  }, []);
+
+  // Handle video playback with retry mechanism for mobile
+  const playVideo = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    try {
+      video.load();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await video.play();
+      setVideoError(false);
+    } catch {
+      try {
+        video.muted = true;
+        await video.play();
+        setVideoError(false);
+      } catch {
+        setVideoError(true);
+      }
+    }
+  }, []);
 
   // Handle video source change
   useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      video.load();
-      video.play().catch(() => {
-        // Ignore AbortError - happens when video is interrupted
-      });
-    }
-  }, [videoSrc]);
+    playVideo();
+  }, [videoSrc, playVideo]);
 
+  // Handle visibility change (for mobile tab switching)
   useEffect(() => {
-    // Auto-scroll snap when user scrolls a little
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        playVideo();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [playVideo]);
+
+  // Auto-scroll snap effect (only on desktop lg: 1024px+)
+  useEffect(() => {
+    if (!isDesktop) return; // Only run on desktop
+
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const threshold = 15; // Scroll 50px to trigger snap
-      const targetScroll = window.innerHeight + 600; // Scroll to cut off plane image
+      const threshold = 30;
 
-      if (scrollY > threshold && scrollY < targetScroll && !hasSnapped) {
-        setHasSnapped(true);
-        gsap.to(window, {
-          duration: 2,
-          scrollTo: { y: targetScroll, autoKill: false },
-          ease: "power2.out"
+      // Find the TravelPartners title element by ID
+      const travelPartnersTitle = document.getElementById('travel-partners-title');
+
+      if (travelPartnersTitle && scrollY > threshold && !hasSnappedRef.current) {
+        const targetPosition = travelPartnersTitle.getBoundingClientRect().top + window.scrollY;
+
+        // Only snap if we haven't scrolled past the target
+        if (scrollY < targetPosition - 50) {
+          hasSnappedRef.current = true;
+          gsap.to(window, {
+            duration: 1.5,
+            scrollTo: { y: targetPosition, autoKill: false },
+            ease: "power2.inOut"
+          });
+        }
+      }
+
+      if (scrollY < 10) {
+        hasSnappedRef.current = false;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isDesktop]);
+
+  // GSAP animations - runs once on mount
+  useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+
+      // Scroll-triggered opacity fade for the entire section
+      if (sectionRef.current) {
+        gsap.to(sectionRef.current, {
+          opacity: 0,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top -50%",
+            end: "bottom top",
+            scrub: 0.5,
+            markers: false,
+          }
         });
       }
 
-      // Reset snap state when user scrolls back to top
-      if (scrollY < 10) {
-        setHasSnapped(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    // Scroll-triggered opacity fade for the entire section
-    if (sectionRef.current) {
-      gsap.to(sectionRef.current, {
-        opacity: 0,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top -50%",   // Start fading after 50% of the page is scrolled
-          end: "bottom top",   // End fading when the section's bottom reaches the top of the viewport
-          scrub: 1,            // Smooth animation over scroll
-          markers: false,      // Set to true for debugging purposes
-        }
-      });
-    }
-
-    // Animate buttons
-    if (buttonsRef.current) {
-      gsap.fromTo(
-        buttonsRef.current.children,
-        { opacity: 0, y: 50, scale: 0.8 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 1,
-          stagger: 0.2,
-          ease: "back.out(1.7)",
-          delay: 0.5
-        }
-      );
-    }
-
-    // Animate stats cards
-    if (statsRef.current) {
-      gsap.fromTo(
-        statsRef.current.children,
-        { opacity: 0, y: 80, rotateX: -15 },
-        {
-          opacity: 1,
-          y: 0,
-          rotateX: 0,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: "power3.out",
-          delay: 1
-        }
-      );
-    }
-
-    // Animate counter numbers
-    const counters = document.querySelectorAll('.counter-number');
-    counters.forEach((counter) => {
-      const target = counter.getAttribute('data-target');
-      if (target) {
+      // Animate buttons
+      if (buttonsRef.current) {
         gsap.fromTo(
-          counter,
-          { innerText: 0 },
+          buttonsRef.current.children,
+          { opacity: 0, y: 50, scale: 0.8 },
           {
-            innerText: parseInt(target),
-            duration: 2,
-            delay: 1.5,
-            snap: { innerText: 1 },
-            ease: "power2.out"
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1,
+            stagger: 0.2,
+            ease: "back.out(1.7)",
+            delay: 0.5
           }
         );
       }
-    });
+
+      // Animate stats cards
+      if (statsRef.current) {
+        gsap.fromTo(
+          statsRef.current.children,
+          { opacity: 0, y: 80, rotateX: -15 },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 0.8,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 1
+          }
+        );
+      }
+
+      // Animate counter numbers
+      const counters = document.querySelectorAll('.counter-number');
+      counters.forEach((counter) => {
+        const target = counter.getAttribute('data-target');
+        if (target) {
+          gsap.fromTo(
+            counter,
+            { innerText: 0 },
+            {
+              innerText: parseInt(target),
+              duration: 2,
+              delay: 1.5,
+              snap: { innerText: 1 },
+              ease: "power2.out"
+            }
+          );
+        }
+      });
+    }, 100);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timer);
     };
-  }, [hasSnapped]);
+  }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-screen flex items-center justify-center overflow-hidden sticky top-0">
+    <section ref={sectionRef} className="fixed inset-0 h-screen flex items-center justify-center overflow-hidden will-change-transform z-0">
       {/* Video Background */}
       <video
         ref={videoRef}
@@ -154,11 +201,20 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        preload="auto"
+        poster="/hero-poster.jpg"
+        onError={() => setVideoError(true)}
+        onCanPlay={() => setVideoError(false)}
+        className={`absolute inset-0 w-full h-full object-cover ${videoError ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
         style={{ objectFit: 'cover', width: '100%', height: '100%' }}
       >
         <source src={videoSrc} type="video/mp4" />
       </video>
+
+      {/* Fallback background when video fails */}
+      {videoError && (
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0d6e6e] via-[#1a5a5a] to-[#b8956a]"></div>
+      )}
 
       {/* Animated Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/40"></div>
@@ -174,7 +230,7 @@ export default function HeroSection() {
       {/* Content - Buttons Only */}
       <div ref={buttonsRef} className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 mt-32 sm:mt-[-8rem] md:mt-64">
         <Link
-          href="/contact"
+          href="/contact-us"
           className="btn-shine bg-white/95 backdrop-blur-md text-gray-800 px-6 py-2.5 rounded-full font-medium text-sm flex items-center justify-between w-[170px] hover:bg-white transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 border border-white/50 pulse-glow"
         >
           <span>Contact Us</span>
@@ -185,7 +241,7 @@ export default function HeroSection() {
           </div>
         </Link>
         <Link
-          href="/explore"
+          href="/packages"
           className="btn-shine bg-white/20 backdrop-blur-xl text-white px-6 py-2.5 rounded-full font-medium text-sm flex items-center justify-between w-[170px] hover:bg-white/30 transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 border border-white/40"
         >
           <span>Explore</span>
